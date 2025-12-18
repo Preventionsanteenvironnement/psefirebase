@@ -1,1 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Correction des Copies</title>
+    <style>
+        body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; background: #f4f4f9; }
+        
+        /* COLONNE GAUCHE : LISTE DES ÉLÈVES */
+        #liste-eleves {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .eleve-item {
+            padding: 15px;
+            border-bottom: 1px solid #34495e;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .eleve-item:hover { background: #34495e; padding-left: 20px; }
+        .active { background: #1abc9c; color: white; font-weight: bold; }
 
+        /* COLONNE DROITE : LA COPIE */
+        #copie-visuelle {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .feuille-papier {
+            background: white;
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        /* STYLE DU FORMULAIRE (Le même que l'élève) */
+        .question { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-left: 4px solid #ddd; }
+        h1 { color: #333; border-bottom: 2px solid #ff6f00; padding-bottom: 10px; }
+        .signature { position: absolute; top: 20px; right: 20px; font-family: "Courier New", monospace; color: red; transform: rotate(-5deg); border: 2px solid red; padding: 5px 10px; font-size: 20px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="liste-eleves">
+        <h3>📂 Copies reçues</h3>
+        <p id="loading">Chargement...</p>
+        <div id="container-liste"></div>
+    </div>
+
+    <div id="copie-visuelle">
+        <div class="feuille-papier">
+            <div id="tampon-note" class="signature">EN ATTENTE</div>
+            
+            <h1>📝 Devoir de <span id="titreNom">...</span></h1>
+            
+            <div id="formulaire-reconstitue">
+                <div class="question">
+                    <strong>Votre Nom :</strong>
+                    <input type="text" id="lectureNom" disabled>
+                </div>
+
+                <div class="question">
+                    <strong>Q1. Quelle est la capitale de la France ?</strong><br>
+                    <label><input type="radio" name="q1" value="Lyon" disabled> Lyon</label>
+                    <label><input type="radio" name="q1" value="Paris" disabled> Paris</label>
+                    <label><input type="radio" name="q1" value="Marseille" disabled> Marseille</label>
+                </div>
+
+                <div class="question">
+                    <strong>Q2. Combien font 2 + 2 ?</strong><br>
+                    <label><input type="radio" name="q2" value="3" disabled> 3</label>
+                    <label><input type="radio" name="q2" value="4" disabled> 4</label>
+                    <label><input type="radio" name="q2" value="5" disabled> 5</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfRcWCd5bMXSb7Gqr88Z5NpQAaG10pVqk",
+            authDomain: "cours-pse.firebaseapp.com",
+            projectId: "cours-pse",
+            storageBucket: "cours-pse.firebasestorage.app",
+            messagingSenderId: "441161657492",
+            appId: "1:441161657492:web:6d71044306717b47121881",
+            measurementId: "G-JFENRTHQH6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 1. On charge la liste des élèves
+        async function chargerListe() {
+            const container = document.getElementById("container-liste");
+            const loading = document.getElementById("loading");
+            
+            // On récupère toutes les copies
+            const q = query(collection(db, "copies_test"));
+            const querySnapshot = await getDocs(q);
+            
+            loading.style.display = "none";
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                // Création du bouton pour l'élève dans la colonne gauche
+                const div = document.createElement("div");
+                div.className = "eleve-item";
+                div.innerHTML = `<strong>${data.eleve}</strong><br><small>${data.date_envoi || 'Date inconnue'}</small>`;
+                
+                // Au clic, on affiche sa copie
+                div.onclick = () => afficherCopie(data, div);
+                
+                container.appendChild(div);
+            });
+        }
+
+        // 2. Fonction pour "Remplir" la feuille avec les données de l'élève
+        function afficherCopie(data, elementClique) {
+            // Gestion du surlignage dans la liste
+            document.querySelectorAll(".eleve-item").forEach(el => el.classList.remove("active"));
+            elementClique.classList.add("active");
+
+            // A. ON REMPLIT LE NOM
+            document.getElementById("titreNom").innerText = data.eleve;
+            document.getElementById("lectureNom").value = data.eleve;
+
+            // B. ON COCHE LES CASES (RECONSTITUTION)
+            // On remet tout à zéro d'abord
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+
+            // On coche la case correspondant à la réponse Q1 stockée dans Firebase
+            if(data.reponse_1) {
+                const radio1 = document.querySelector(`input[name="q1"][value="${data.reponse_1}"]`);
+                if(radio1) radio1.checked = true;
+            }
+
+            // On coche la case correspondant à la réponse Q2
+            if(data.reponse_2) {
+                const radio2 = document.querySelector(`input[name="q2"][value="${data.reponse_2}"]`);
+                if(radio2) radio2.checked = true;
+            }
+
+            // C. PETIT BONUS : CORRECTION AUTOMATIQUE VISUELLE
+            const tampon = document.getElementById("tampon-note");
+            tampon.style.display = "block";
+            
+            // Si les réponses sont bonnes (Paris et 4)
+            if(data.reponse_1 === "Paris" && data.reponse_2 === "4") {
+                tampon.innerText = "EXCELLENT (20/20)";
+                tampon.style.color = "green";
+                tampon.style.borderColor = "green";
+                tampon.style.transform = "rotate(-10deg)";
+            } else {
+                tampon.innerText = "À REVOIR";
+                tampon.style.color = "red";
+                tampon.style.borderColor = "red";
+                tampon.style.transform = "rotate(10deg)";
+            }
+        }
+
+        // Démarrage
+        chargerListe();
+    </script>
+</body>
+</html>
