@@ -2,118 +2,88 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercice Test - Connexion Firebase</title>
+    <title>Devoir PSE - Travail à compléter</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h1 { color: #333; text-align: center; }
-        .question { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; cursor: pointer; }
-        input[type="text"] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; }
-        button { width: 100%; padding: 15px; background-color: #ff6f00; color: white; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        button:hover { background-color: #e65100; }
-        #message { margin-top: 15px; text-align: center; font-weight: bold; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 20px; background: #f9f9f9; }
+        .copie { background: white; padding: 40px; border: 1px solid #ccc; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; text-align: center; }
+        .input-champ { border: none; border-bottom: 1px dotted #000; background: #fffde7; padding: 2px 5px; font-family: 'Courier New', monospace; font-size: 16px; color: blue; width: 100%; margin-bottom: 10px; }
+        .input-champ:focus { outline: none; background: #fff9c4; border-bottom: 2px solid blue; }
+        .header-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-weight: bold; }
+        #btnEnvoyer { display: block; width: 100%; padding: 20px; background: #27ae60; color: white; font-size: 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 30px; }
+        #btnEnvoyer:hover { background: #219150; }
+        #status { text-align: center; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📝 Devoir Test PSE</h1>
-    <p>Remplissez ce formulaire pour tester l'envoi vers Firebase.</p>
-
-    <div id="monFormulaire">
-        <div class="question">
-            <strong>Votre Nom :</strong>
-            <input type="text" id="nomEleve" placeholder="Ex: Jean Dupont">
-        </div>
-
-        <div class="question">
-            <strong>Q1. Quelle est la capitale de la France ?</strong><br>
-            <label><input type="radio" name="q1" value="Lyon"> Lyon</label>
-            <label><input type="radio" name="q1" value="Paris"> Paris</label>
-            <label><input type="radio" name="q1" value="Marseille"> Marseille</label>
-        </div>
-
-        <div class="question">
-            <strong>Q2. Combien font 2 + 2 ?</strong><br>
-            <label><input type="radio" name="q2" value="3"> 3</label>
-            <label><input type="radio" name="q2" value="4"> 4</label>
-            <label><input type="radio" name="q2" value="5"> 5</label>
-        </div>
-
-        <button id="btnEnvoyer">Envoyer ma copie 🚀</button>
+<div class="copie">
+    <h1>DEVOIR DE PSE</h1>
+    
+    <div class="header-info">
+        <div>NOM : <input type="text" id="nomEleve" class="input-champ" style="width: 200px;"></div>
+        <div>Classe : <input type="text" id="classeEleve" class="input-champ" style="width: 100px;"></div>
     </div>
 
-    <div id="message"></div>
+    <h2>THÈME : L'INDIVIDU DANS SON MILIEU PROFESSIONNEL</h2>
+
+    <p><strong>Situation :</strong> Vous travaillez en tant qu'apprenti(e) dans une entreprise...</p>
+    
+    <p><strong>Question 1 :</strong> Identifiez les dangers présents dans la situation de travail décrite.<br>
+    <textarea id="reponse1" class="input-champ" rows="4" placeholder="Tapez votre réponse ici..."></textarea></p>
+
+    <p><strong>Question 2 :</strong> Proposez deux mesures de prévention pour limiter les risques.<br>
+    <textarea id="reponse2" class="input-champ" rows="4" placeholder="Mesure 1 : ... &#10;Mesure 2 : ..."></textarea></p>
+
+    <button id="btnEnvoyer">🚀 Envoyer mon devoir au professeur</button>
+    <div id="status"></div>
 </div>
 
 <script type="module">
-  // Importation des fonctions nécessaires depuis Google
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-  // TA CONFIGURATION (Copiée depuis tes images)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfRcWCd5bMXSb7Gqr88Z5NpQAaG10pVqk",
-    authDomain: "cours-pse.firebaseapp.com",
-    projectId: "cours-pse",
-    storageBucket: "cours-pse.firebasestorage.app",
-    messagingSenderId: "441161657492",
-    appId: "1:441161657492:web:6d71044306717b47121881",
-    measurementId: "G-JFENRTHQH6"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBfRcWCd5bMXSb7Gqr88Z5NpQAaG10pVqk",
+        authDomain: "cours-pse.firebaseapp.com",
+        projectId: "cours-pse",
+        storageBucket: "cours-pse.firebasestorage.app",
+        messagingSenderId: "441161657492",
+        appId: "1:441161657492:web:6d71044306717b47121881"
+    };
 
-  // Initialisation
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  // Fonction déclenchée au clic sur le bouton
-  document.getElementById("btnEnvoyer").addEventListener("click", async () => {
-    
-    // 1. Récupération des valeurs du formulaire
-    const nom = document.getElementById("nomEleve").value;
-    // On récupère les boutons radio cochés
-    const q1Element = document.querySelector('input[name="q1"]:checked');
-    const q2Element = document.querySelector('input[name="q2"]:checked');
+    document.getElementById("btnEnvoyer").addEventListener("click", async () => {
+        const nom = document.getElementById("nomEleve").value;
+        const classe = document.getElementById("classeEleve").value;
+        const r1 = document.getElementById("reponse1").value;
+        const r2 = document.getElementById("reponse2").value;
 
-    // Petite vérification que tout est rempli
-    if (!nom || !q1Element || !q2Element) {
-        alert("Merci de remplir tout le questionnaire !");
-        return;
-    }
+        if(!nom || !r1) {
+            alert("Merci de remplir au moins votre nom et la première question !");
+            return;
+        }
 
-    const reponseQ1 = q1Element.value;
-    const reponseQ2 = q2Element.value;
-    const messageDiv = document.getElementById("message");
-    const bouton = document.getElementById("btnEnvoyer");
-
-    messageDiv.innerText = "Envoi en cours vers Firebase...";
-    bouton.disabled = true; // On désactive le bouton pour éviter les double-clics
-
-    try {
-      // 2. ENVOI VERS FIREBASE
-      // On crée une collection "copies_test"
-      const docRef = await addDoc(collection(db, "copies_test"), {
-        eleve: nom,
-        reponse_1: reponseQ1,
-        reponse_2: reponseQ2,
-        date_envoi: new Date().toLocaleString()
-      });
-
-      // 3. Succès
-      messageDiv.style.color = "green";
-      messageDiv.innerText = "✅ Bien reçu ! Copie enregistrée sur Firebase.";
-      console.log("Document écrit avec ID: ", docRef.id);
-
-    } catch (e) {
-      // 4. Erreur
-      console.error("Erreur d'ajout : ", e);
-      messageDiv.style.color = "red";
-      messageDiv.innerText = "❌ Erreur : Regarde la console (F12) pour les détails.";
-      bouton.disabled = false;
-    }
-  });
+        document.getElementById("status").innerText = "Envoi en cours...";
+        
+        try {
+            await addDoc(collection(db, "devoirs_pse"), {
+                eleve: nom,
+                classe: classe,
+                reponse_1: r1,
+                reponse_2: r2,
+                date: new Date().toLocaleString('fr-FR')
+            });
+            document.getElementById("status").style.color = "green";
+            document.getElementById("status").innerText = "✅ Devoir envoyé ! Vous pouvez fermer cette page.";
+            document.getElementById("btnEnvoyer").disabled = true;
+        } catch (e) {
+            document.getElementById("status").style.color = "red";
+            document.getElementById("status").innerText = "❌ Erreur d'envoi. Recommencez.";
+        }
+    });
 </script>
 
 </body>
