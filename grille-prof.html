@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+  <meta charset="UTF-8">
+  <title>Évaluation PSE - Modèle Source</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* --- STYLE GENERAL --- */
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 1rem; font-family: 'Segoe UI', system-ui, sans-serif; background: #f3f4f6; color: #1f2937; padding-bottom: 250px; }
+    
+    .card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 1.5rem; border: 1px solid #e5e7eb; }
+    
+    /* INPUTS & TEXTAREAS */
+    label { font-weight: 600; color: #374151; margin-right: 5px; white-space: nowrap; }
+    input, select, textarea { font-size: 0.9rem; border: 1px solid #d1d5db; border-radius: 4px; padding: 6px 8px; font-family: inherit; background-color: #fff; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #2563eb; border-color: #2563eb; }
+    textarea { width: 100%; resize: none; overflow: hidden; min-height: 30px; line-height: 1.3; display: block; }
+    
+    /* EN-TETES EDITABLES */
+    .th-input {
+        width: 100%; text-align: center; font-weight: 700; color: #334155;
+        border: none; background: transparent; padding: 4px; margin: 0;
+        resize: none; overflow: hidden; font-size: 0.85rem;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        white-space: pre-wrap;
+    }
+    .th-input:focus { outline: none; background: #e2e8f0; border-radius: 4px; }
+
+    /* TITRES EDITABLES */
+    .title-main {
+        width: 100%; text-align: center; font-size: 1.6rem; font-weight: 800;
+        color: #1e293b; border: none; background: transparent;
+        margin-bottom: 1rem; resize: none; overflow: hidden; min-height: 40px;
+    }
+    .title-section {
+        width: 100%; font-size: 1.2rem; font-weight: 700;
+        color: #334155; border: none; border-bottom: 2px solid #e2e8f0;
+        background: transparent; padding: 5px 0; margin-bottom: 15px; margin-top: 10px;
+        resize: none; overflow: hidden; min-height: 35px;
+    }
+    .title-main:focus, .title-section:focus { outline: none; border-bottom-color: #2563eb; background: #f8fafc; }
+
+    /* NOTE INPUT (EN NOIR PAR DEFAUT, MAIS CHANGEANT) */
+    .bareme-total-input { width: 60px; font-weight: 800; color: #000; border: none; border-bottom: 2px solid #000; text-align: center; background: transparent; font-size: 1.3rem; }
+
+    /* TABLEAU */
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: #fff; }
+    th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: center; vertical-align: top; }
+    th { background: #f8fafc; vertical-align: middle; }
+    .left { text-align: left; }
+    
+    /* PERSONNALISATION POLICE TABLEAU */
+    #table-questions, 
+    #table-questions input, 
+    #table-questions select, 
+    #table-questions textarea,
+    #table-questions .corrige-div {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 14px; 
+    }
+    
+    /* STYLE DES DIVS RICHES (Word-like) */
+    .corrige-div {
+        width: 100%;
+        min-height: 30px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 6px 8px;
+        background-color: #fff;
+        text-align: left;
+        white-space: pre-wrap;
+        cursor: text;
+    }
+    .corrige-div:focus {
+        outline: 2px solid #2563eb;
+        border-color: #2563eb;
+        background-color: #feffff;
+    }
+
+    /* LIGNE DES OUTILS (RESET) */
+    .tools-row th { background: #f1f5f9; padding: 2px; height: 25px; }
+    .btn-col-clear {
+        background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 0.8rem;
+        width: 100%; height: 100%; display: block; border-radius: 4px;
+    }
+    .btn-col-clear:hover { background: #fee2e2; color: #dc2626; }
+
+    /* NOMS COMPETENCES EDITABLES (BILAN) */
+    .comp-name-input {
+        text-align: left; font-weight: 600; border: none; background: transparent; padding: 2px; width: 100%;
+    }
+    .comp-name-input:focus { background: #f1f5f9; }
+
+    /* COULEURS LIGNES */
+    tr.comp-C1 td, tr[data-comp="C1"] td { background-color: #ffffff; }
+    tr.comp-C2 td, tr[data-comp="C2"] td { background-color: #f0f9ff; }
+    tr.comp-C3 td, tr[data-comp="C3"] td { background-color: #fdf2f8; }
+    tr.comp-C4 td, tr[data-comp="C4"] td { background-color: #f0fdf4; }
+    tr.comp-C5 td, tr[data-comp="C5"] td { background-color: #fffbeb; }
+    tr.comp-C6 td, tr[data-comp="C6"] td { background-color: #f5f3ff; }
+
+    /* BOUTONS NIVEAU */
+    .btn-group-level { display: flex; gap: 4px; width: 100%; }
+    .btn-level { border: 1px solid #cbd5e1; background: #fff; font-size: 0.75rem; padding: 6px 0; flex: 1; cursor: pointer; border-radius: 4px; font-weight: 600; color: #64748b; transition: all 0.1s; }
+    .btn-level:hover { background: #f1f5f9; }
+    .btn-level.active[data-val="NT"] { background: #94a3b8; color: white; border-color: #64748b; }
+    .btn-level.active[data-val="I"] { background: #ef4444; color: white; border-color: #dc2626; }
+    .btn-level.active[data-val="A"] { background: #eab308; color: white; border-color: #ca8a04; }
+    .btn-level.active[data-val="M"] { background: #22c55e; color: white; border-color: #16a34a; }
+
+    /* SELECT METHODE C2 */
+    .comp-wrapper { display: flex; flex-direction: column; gap: 4px; }
+    .method-select { font-size: 0.7rem; color: #2563eb; background-color: #eff6ff; display: none; margin-top: 2px; }
+    .comp-wrapper.show-method .method-select { display: block; }
+
+    /* CONTROLES */
+    .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+    button { border: none; border-radius: 6px; padding: 0.6rem 1rem; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    
+    .btn-add { background: #2563eb; } 
+    .btn-del { background: #dc2626; } 
+    .btn-clear { background: #4b5563; } 
+    
+    /* Nouveaux boutons JSON */
+    .btn-json-export { background: #d97706; } /* Orange */
+    .btn-json-import { background: #0891b2; } /* Cyan */
+    
+    .btn-print { background: #4f46e5; }
+
+    /* AIDE FLOTTANTE */
+    #criteria-helper { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #f8fafc; padding: 15px; z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); font-size: 0.95rem; text-align: center; border-top: 4px solid #3b82f6; transform: translateY(120%); transition: transform 0.3s; }
+    #criteria-helper.visible { transform: translateY(0); }
+    .criteria-title { display: block; font-size: 0.8rem; color: #93c5fd; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
+
+    /* BARRES PROGRESSION */
+    .progress-cell { vertical-align: middle; padding: 0 8px; width: 120px; }
+    .progress { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100%; margin-bottom: 4px; }
+    .progress-bar { height: 100%; background: #22c55e; width: 0%; transition: width 0.5s ease; }
+    .progress-text { font-size: 0.7rem; color: #64748b; font-weight: 700; text-align: right; }
+
+    /* BANQUE COMMENTAIRES */
+    .bank-card { border-top: 4px solid #8b5cf6; }
+    .bank-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .bank-tag { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .bank-tag:hover { background: #ede9fe; border-color: #8b5cf6; color: #5b21b6; transform: translateY(-1px); }
+    .bank-del { width: 18px; height: 18px; border-radius: 50%; background: #cbd5e1; color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
+    .bank-del:hover { background: #ef4444; }
+    .bank-input-group { display: flex; gap: 8px; }
+
+    /* LEGENDE POUR IMPRESSION */
+    #print-legend { display: none; }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 800px) {
+        table { font-size: 0.75rem; }
+        th, td { padding: 4px 2px; }
+        #table-questions { display: block; overflow-x: auto; white-space: nowrap; }
+        #table-questions thead th:first-child, #table-questions thead th:first-child,
+        #table-questions tbody td:first-child { 
+            position: sticky; left: 0; z-index: 20; border-right: 2px solid #ccc; 
+        }
+        /* Sticky Backgrounds */
+        tr.comp-C1 td:first-child { background: #fff; } tr.comp-C2 td:first-child { background: #f0f9ff; }
+        tr.comp-C3 td:first-child { background: #fdf2f8; } tr.comp-C4 td:first-child { background: #f0fdf4; }
+        tr.comp-C5 td:first-child { background: #fffbeb; } tr.comp-C6 td:first-child { background: #f5f3ff; }
+    }
+
+    /* --- IMPRESSION (CLEAN) --- */
+    @media print {
+        @page { size: A4; margin: 12mm; }
+        body { background: white; padding: 0; font-size: 11pt; font-family: serif; color: black; }
+        
+        /* Cacher interface */
+        .controls, .bank-card, #criteria-helper, .method-select, .btn-group-level, .tools-row { display: none !important; }
+        .card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
+        
+        .title-main { font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 20px; border: none; height: auto !important; }
+        .title-section { font-size: 14pt; font-weight: bold; background: #eee; padding: 5px; margin-top: 20px; border: 1px solid #000; height: auto !important; }
+        
+        /* Headers en texte */
+        .th-input { font-weight: bold; text-align: center; border: none; background: transparent; padding: 0; height: auto !important; overflow: visible; font-size: 10pt; }
+
+        input, select, textarea { 
+            border: none; background: transparent; padding: 0; margin: 0; 
+            font-weight: bold; font-family: inherit; width: auto; 
+            -webkit-appearance: none; appearance: none; 
+        }
+        
+        textarea.corrige-text, textarea#commentGlobal, .corrige-div { display: none; }
+        
+        /* Note en noir (mais garde la couleur visuelle si possible, sinon noir) */
+        .bareme-total-input { color: #000 !important; border-bottom: none !important; text-align: left; }
+        #note-header { color: #000; }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        table { width: 100%; border: 1px solid #000; border-collapse: collapse; page-break-inside: auto; }
+        /* AJOUT IMPRESSION : Empêcher la coupure des lignes */
+        tr { page-break-inside: avoid; break-inside: avoid; }
+        
+        th, td { border: 1px solid #000; padding: 4px; font-size: 10pt; vertical-align: middle !important; }
+        th { background: #eee !important; color: #000; font-weight: bold; }
+        
+        .progress-cell { vertical-align: middle !important; }
+        .progress { margin-top: 4px; margin-bottom: 4px; }
+        
+        tr.comp-C1 td { background-color: #fff !important; }
+        tr.comp-C2 td { background-color: #f0f9ff !important; }
+        tr.comp-C3 td { background-color: #fdf2f8 !important; }
+        tr.comp-C4 td { background-color: #f0fdf4 !important; }
+        tr.comp-C5 td { background-color: #fffbeb !important; }
+        tr.comp-C6 td { background-color: #f5f3ff !important; }
+
+        /* Cacher les lignes de bilan non utilisées */
+        tr.hidden-row { display: none !important; }
+
+        #print-legend { display: block !important; page-break-before: auto; }
+        #print-legend table { font-size: 9pt; }
+        
+        /* Affichage spécifique pour impression Rich Text */
+        .print-replace-rich { 
+            display: block !important; 
+            font-family: inherit; 
+            text-align: left;
+            border: 1px solid #000;
+            padding: 4px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<div id="criteria-helper" class=""><div id="criteria-text"></div></div>
+
+<div class="card">
+  <textarea class="title-main auto-save" rows="1" placeholder="Titre de l'évaluation">Évaluation PSE</textarea>
+  
+  <div style="display:flex; flex-wrap:wrap; gap:1.5rem; align-items: center;">
+    <div><label>Nom :</label> <input type="text" id="nom" class="auto-save" style="font-weight:bold; min-width:150px;"></div>
+    <div><label>Prénom :</label> <input type="text" id="prenomEleve" class="auto-save" style="font-weight:bold; min-width:150px;"></div>
+    <div><label>Classe :</label> <input type="text" id="classe" class="auto-save" style="width:80px;"></div>
+    <div><label>Date :</label> <input type="date" id="dateEval" class="auto-save"></div>
+    <div style="margin-left:auto; font-size:1.2rem;">
+        <label style="color:#000;">NOTE :</label> 
+        <span id="note-header" style="font-weight:800; color:#000;">0</span> / 
+        <input type="number" id="noteMaxInput" class="bareme-total-input auto-save" value="20">
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <textarea class="title-section auto-save" rows="1">Grille d’évaluation détaillée</textarea>
+  
+  <table id="table-questions">
+    <thead>
+      <tr style="color:#1f2937; text-transform:none;">
+        <th style="width:80px; background:#e5e7eb; font-weight:800;">Questions</th>
+        <th style="width:130px; background:#e5e7eb; font-weight:800;">Compétences</th>
+        <th style="width:140px; background:#e5e7eb; font-weight:800;">
+            <div>Niveau</div>
+            <div style="font-size:0.7em; font-weight:normal; margin-top:2px; color:#4b5563;"></div>
+        </th>
+        <th style="width:90px; background:#e5e7eb; font-weight:800; line-height:1.2;">
+            Barème
+        </th> 
+        <th style="width:90px; background:#e5e7eb; font-weight:800; line-height:1.2;">
+            Note
+        </th> 
+        <th style="background:#e5e7eb; font-weight:800;">Éléments de réponse attendus </th>
+      </tr>
+      <tr class="tools-row">
+        <th><button class="btn-col-clear" onclick="clearColumn('qnum-select')" title="Vider">🗑</button></th>
+        <th><button class="btn-col-clear" onclick="clearColumn('comp-select')" title="Vider">🗑</button></th>
+        <th><button class="btn-col-clear" onclick="clearColumn('level-select')" title="Vider">🗑</button></th>
+        <th><button class="btn-col-clear" onclick="clearColumn('bareme-input')" title="Vider">🗑</button></th>
+        <th><button class="btn-col-clear" onclick="clearColumn('points-input')" title="Vider">🗑</button></th>
+        <th><button class="btn-col-clear" onclick="clearColumn('corrige-div')" title="Vider">🗑</button></th>
+      </tr>
+    </thead>
+    <tbody id="tbody-questions"></tbody>
+    <tfoot>
+        <tr style="background:#f8fafc; font-weight:bold;">
+            <td id="nbQuestionsDisplay">0</td>
+            <td colspan="2" style="text-align:right;">TOTAL</td>
+            <td id="sumBareme">0</td>
+            <td id="sumPoints" style="color:#000;">0</td>
+            <td></td>
+        </tr>
+    </tfoot>
+  </table>
+
+  <div style="font-style: italic; color: #4b5563; font-size: 0.85rem; margin-top: 8px; margin-left: 4px;">
+    Légende : NT = Non Traité, I = Insuffisant, A = Acquis, M = Maîtrisé
+  </div>
+  
+  <div class="controls">
+    <button type="button" class="btn-add" id="btn-add-row">+ Question</button>
+    <button type="button" class="btn-del" id="btn-del-row">- Suppr.</button>
+    
+    <div style="width:1px; height:25px; background:#ccc; margin:0 10px;"></div>
+    <button type="button" onclick="telechargerPageRemplie()" style="background:#10b981;">💾 Enregistrer mon travail</button>
+
+    <div style="width:1px; height:25px; background:#ccc; margin:0 10px;"></div> <button type="button" class="btn-json-export" id="btn-export-json">💾 Sauvegarder Projet (JSON)</button>
+    <button type="button" class="btn-json-import" id="btn-import-json">📂 Ouvrir Projet (JSON)</button>
+    <input type="file" id="file-input" accept=".json" style="display:none">
+    
+    <div style="width:1px; height:25px; background:#ccc; margin:0 10px;"></div> <button type="button" class="btn-print" id="btn-print">🖨️ Imprimer PDF</button>
+    <button type="button" class="btn-clear" id="btn-clear" style="margin-left:auto;">Tout Effacer</button>
+  </div>
+</div>
+
+<div class="card">
+  <textarea class="title-section auto-save" rows="1">Bilan des compétences</textarea>
+
+  <table>
+    <thead><tr><th>Compétences</th><th>Questions</th><th>Barème</th><th>NT</th><th>I</th><th>A</th><th>M</th><th>Points
+
+    </th><th>%</th></tr></thead>
+    <tbody id="tbody-resume">
+      <tr id="row-C1" data-comp="C1"><td><textarea class="auto-save comp-name-input" rows="1">C1 – Traiter l'information</textarea></td><td id="C1_q">–</td><td id="C1_b">0</td><td id="C1_NT">0</td><td id="C1_I">0</td><td id="C1_A">0</td><td id="C1_M">0</td><td><input type="number" id="C1_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C1_bar"></div></div><div class="progress-text" id="C1_pct">0%</div></td></tr>
+      <tr id="row-C2" data-comp="C2"><td><textarea class="auto-save comp-name-input" rows="1">C2 – Démarche d'analyse</textarea></td><td id="C2_q">–</td><td id="C2_b">0</td><td id="C2_NT">0</td><td id="C2_I">0</td><td id="C2_A">0</td><td id="C2_M">0</td><td><input type="number" id="C2_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C2_bar"></div></div><div class="progress-text" id="C2_pct">0%</div></td></tr>
+      <tr id="row-C3" data-comp="C3"><td><textarea class="auto-save comp-name-input" rows="1">C3 – Expliquer phénomène</textarea></td><td id="C3_q">–</td><td id="C3_b">0</td><td id="C3_NT">0</td><td id="C3_I">0</td><td id="C3_A">0</td><td id="C3_M">0</td><td><input type="number" id="C3_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C3_bar"></div></div><div class="progress-text" id="C3_pct">0%</div></td></tr>
+      <tr id="row-C4" data-comp="C4"><td><textarea class="auto-save comp-name-input" rows="1">C4 – Proposer solution</textarea></td><td id="C4_q">–</td><td id="C4_b">0</td><td id="C4_NT">0</td><td id="C4_I">0</td><td id="C4_A">0</td><td id="C4_M">0</td><td><input type="number" id="C4_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C4_bar"></div></div><div class="progress-text" id="C4_pct">0%</div></td></tr>
+      <tr id="row-C5" data-comp="C5"><td><textarea class="auto-save comp-name-input" rows="1">C5 – Argumenter</textarea></td><td id="C5_q">–</td><td id="C5_b">0</td><td id="C5_NT">0</td><td id="C5_I">0</td><td id="C5_A">0</td><td id="C5_M">0</td><td><input type="number" id="C5_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C5_bar"></div></div><div class="progress-text" id="C5_pct">0%</div></td></tr>
+      <tr id="row-C6" data-comp="C6"><td><textarea class="auto-save comp-name-input" rows="1">C6 – Communiquer</textarea></td><td id="C6_q">–</td><td id="C6_b">0</td><td id="C6_NT">0</td><td id="C6_I">0</td><td id="C6_A">0</td><td id="C6_M">0</td><td><input type="number" id="C6_pts" class="comp-points-input auto-save"></td><td class="progress-cell"><div class="progress"><div class="progress-bar" id="C6_bar"></div></div><div class="progress-text" id="C6_pct">0%</div></td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:10px; font-size:1rem; text-align:right;">
+      Note finale : <strong><span id="note20_resume">0 / 20</span></strong>
+  </div>
+</div>
+
+<div class="card">
+  <textarea class="title-section auto-save" rows="1">Commentaire</textarea>
+  <textarea id="commentGlobal" class="auto-save" placeholder="Appréciation générale de la copie..."></textarea>
+</div>
+
+<div id="print-legend" class="card">
+    <h2>Légende des critères d'évaluation</h2>
+    <table>
+        <tbody><tr><th width="15%">Compétence</th><th width="28%">Insuffisant (I)</th><th width="28%">Acceptable (A)</th><th width="29%">Maîtrisé (M)</th></tr>
+        <tr id="legend-C1" style="display: none;"><td><strong>C1</strong> Traiter l'info</td><td>Moins de 50% des infos relevées.</td><td>Majorité des infos (&gt;50%) relevées.</td><td>Toutes infos relevées et synthétisées.</td></tr>
+        <tr id="legend-C2"><td><strong>C2</strong> Analyse</td><td>Problème mal identifié, peu d'éléments.</td><td>Problème identifié, majorité éléments liés.</td><td>Analyse précise, liens complets.</td></tr>
+        <tr id="legend-C3"><td><strong>C3</strong> Expliquer</td><td>Explication partielle, lien flou.</td><td>Explication correcte, lien établi.</td><td>Explication complète, vocabulaire scientifique.</td></tr>
+        <tr id="legend-C4"><td><strong>C4</strong> Solution</td><td>Solution inadaptée ou hors-sujet.</td><td>Solution adaptée au problème.</td><td>Solution réaliste, complète et hiérarchisée.</td></tr>
+        <tr id="legend-C5"><td><strong>C5</strong> Argumenter</td><td>Argument non pertinent.</td><td>Argument pertinent en lien avec le choix.</td><td>Arguments multiples, preuves, conclusion.</td></tr>
+        <tr id="legend-C6"><td><strong>C6</strong> Communiquer</td><td>Syntaxe fragile, vocabulaire pauvre.</td><td>Syntaxe correcte, vocabulaire adapté.</td><td>Fluide, précis, vocabulaire professionnel.</td></tr>
+    </tbody></table>
+</div>
+
+<div class="card bank-card">
+    <h2>Banque de commentaires</h2>
+    <div class="bank-input-group">
+        <input type="text" id="bank-input" placeholder="Ajouter un commentaire..." style="flex:1;">
+        <button class="btn-add" id="btn-bank-add">Ajouter</button>
+        <button class="btn-danger-light" onclick="resetBank()">Vider</button>
+    </div>
+    <div id="bank-container" class="bank-container"></div>
+</div>
+
+<script>
+  /* --- 1. CRITERES --- */
+  const CRITERIA = {
+      "C1": { "default": { "NT": "Info fausse/absente", "I": "Infos partielles (<50%)", "A": "Majorité infos (>50%)", "M": "Toutes infos + Synthèse" } },
+      "C2": { 
+          "default": { "NT": "Non identifié", "I": "Mal formulé / Peu d'éléments", "A": "Correct / Majorité éléments", "M": "Précis / Complet / Liens" },
+          "diagramme": { "NT": "Incomplet", "I": "1 cause + 1 conseq", "A": "Plusieurs causes", "M": "Diagramme complet" },
+          "itamami": { "NT": "Vide", "I": "2 parties OK", "A": "3 parties OK", "M": "4 parties OK" },
+          "5m": { "NT": "Vide", "I": "3M OK", "A": "4M OK", "M": "5M + Conséquence" },
+          "qqoqcp": { "NT": "Vide", "I": "3 items OK", "A": "4 items OK", "M": "5 items OK" },
+          "risques": { "NT": "Erreur", "I": "2 éléments liés", "A": "3 éléments liés", "M": "Tous éléments liés" },
+          "travail": { "NT": "Erreur", "I": "1 det + 1 effet", "A": "Det + Effets identifiés", "M": "Complet avec liens" }
+      },
+      "C3": { "default": { "NT": "Rien", "I": "Partiel / Lien flou", "A": "Correct / Lien établi", "M": "Complet / Vocab. scientifique" } },
+      "C4": { "default": { "NT": "Rien", "I": "Inadapté", "A": "Adapté", "M": "Réaliste / Hiérarchisé" } },
+      "C5": { "default": { "NT": "Rien", "I": "Non pertinent", "A": "Pertinent", "M": "Justifié avec preuves" } },
+      "C6": { "default": { "NT": "Incompréhensible", "I": "Syntaxe fragile", "A": "Syntaxe correcte", "M": "Fluide / Pro" } }
+  };
+
+  /* --- 2. VARS & UTILS --- */
+  const tbody = document.getElementById("tbody-questions");
+  const noteMaxInput = document.getElementById("noteMaxInput");
+  const criteriaHelper = document.getElementById("criteria-helper");
+  const criteriaText = document.getElementById("criteria-text");
+  
+  let commentBank = [];
+  const bankInput = document.getElementById("bank-input");
+  const bankContainer = document.getElementById("bank-container");
+  let lastFocusedInput = document.getElementById("commentGlobal");
+
+  function formatNumber(x){ return Number.isInteger(x) ? x.toString() : x.toString().replace(/\.0+$/,''); }
+
+  // Auto-resize textarea
+  function bindAutoResize(textarea) {
+    if (!textarea || textarea.tagName !== 'TEXTAREA' || textarea.dataset.bound) return;
+    textarea.dataset.bound = "1";
+    textarea.addEventListener("input", function(){ this.style.height="auto"; this.style.height = this.scrollHeight + "px"; });
+    textarea.addEventListener("focus", function(){ lastFocusedInput = this; });
+    setTimeout(() => { textarea.style.height="auto"; textarea.style.height = textarea.scrollHeight + "px"; }, 10);
+  }
+  
+  function bindRichEdit(div) {
+      if(!div || div.dataset.bound) return;
+      div.dataset.bound = "1";
+      div.addEventListener("focus", function(){ lastFocusedInput = this; });
+  }
+
+  function fillQuestionSelect(sel) {
+    if(sel.options.length > 1) return;
+    const arr = [""];
+    for(let i=1;i<=30;i++) { 
+        arr.push(String(i)); 
+        for(let j=1;j<=25;j++) arr.push(i+"."+j); 
+    }
+    arr.forEach(v => { const opt = document.createElement("option"); opt.value=v; opt.textContent=v; sel.appendChild(opt); });
+  }
+
+  /* --- 3. AIDE CONTEXTUELLE --- */
+  function showCriteria(comp, level, method) {
+      if(!comp || !level || !CRITERIA[comp]) { criteriaHelper.classList.remove("visible"); return; }
+      let m = (comp === "C2" && method && CRITERIA["C2"][method]) ? method : "default";
+      const txt = CRITERIA[comp][m] ? CRITERIA[comp][m][level] : "";
+      if(txt) { 
+          criteriaText.innerHTML = `<strong>${comp} ${level} :</strong> ${txt}`; 
+          criteriaHelper.classList.add("visible"); 
+      } else { criteriaHelper.classList.remove("visible"); }
+  }
+
+  /* --- 4. ROWS --- */
+  function createRow() {
+    const tr = document.createElement("tr");
+    tr.className = "question-row";
+    tr.innerHTML = `
+      <td><select class="qnum-select auto-save"></select></td>
+      <td>
+        <div class="comp-wrapper">
+            <select class="comp-select auto-save">
+              <option value="">–</option><option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option><option value="C6">C6</option>
+            </select>
+            <select class="method-select auto-save">
+                <option value="default">Général</option><option value="diagramme">Causes-Effets</option><option value="itamami">ITaMaMi</option><option value="5m">5M</option><option value="qqoqcp">QQOQCP</option><option value="risques">Risques</option><option value="travail">Travail</option>
+            </select>
+        </div>
+      </td>
+      <td>
+        <div class="btn-group-level">
+            <input type="hidden" class="level-select auto-save">
+            <div class="btn-level" data-val="NT">NT</div><div class="btn-level" data-val="I">I</div><div class="btn-level" data-val="A">A</div><div class="btn-level" data-val="M">M</div>
+        </div>
+        <span class="print-level-text" style="display:none; font-weight:bold;"></span>
+      </td>
+      <td><input type="number" class="bareme-input auto-save" step="0.5" style="width:60px;"></td>
+      <td><input type="number" class="points-input auto-save" step="0.5" style="width:60px;"></td>
+      <td class="left"><div class="corrige-div auto-save" contenteditable="true"></div></td>
+    `;
+    fillQuestionSelect(tr.querySelector(".qnum-select"));
+    bindRichEdit(tr.querySelector(".corrige-div"));
+    
+    // Listeners classiques
+    const compSel = tr.querySelector(".comp-select");
+    const methodSel = tr.querySelector(".method-select");
+    const wrapper = tr.querySelector(".comp-wrapper");
+    const hidden = tr.querySelector(".level-select");
+    const btns = tr.querySelectorAll(".btn-level");
+    const ptsInput = tr.querySelector(".points-input");
+    const barInput = tr.querySelector(".bareme-input");
+
+    compSel.addEventListener("change", () => {
+        if(compSel.value === "C2") wrapper.classList.add("show-method");
+        else { wrapper.classList.remove("show-method"); methodSel.value = "default"; }
+        computeAll();
+    });
+    
+    ptsInput.addEventListener("input", computeAll);
+    barInput.addEventListener("input", computeAll);
+
+    btns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            btns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            hidden.value = btn.dataset.val;
+            tr.querySelector(".print-level-text").textContent = btn.dataset.val;
+            computeAll();
+            showCriteria(compSel.value, btn.dataset.val, methodSel.value);
+        });
+        btn.addEventListener("mouseenter", () => showCriteria(compSel.value, btn.dataset.val, methodSel.value));
+        btn.addEventListener("mouseleave", () => criteriaHelper.classList.remove("visible"));
+    });
+
+    return tr;
+  }
+
+  /* --- 5. CALCULS DYNAMIQUES --- */
+  
+  function updateTotalFromBilan() {
+      let total = 0;
+      const comps = ["C1","C2","C3","C4","C5","C6"];
+      comps.forEach(c => {
+          const val = parseFloat(document.getElementById(c+"_pts").value) || 0;
+          total += val;
+      });
+      const max = parseFloat(noteMaxInput.value) || 20;
+      
+      // Mise à jour affichage Note + COULEUR
+      const noteHeader = document.getElementById("note-header");
+      const noteResume = document.getElementById("note20_resume");
+      
+      const formattedTotal = formatNumber(total);
+      noteHeader.textContent = formattedTotal;
+      noteResume.textContent = formattedTotal + " / " + formatNumber(max);
+
+      // Couleur dynamique
+      if (total < 10) {
+          noteHeader.style.color = "#dc2626"; // Rouge
+          noteResume.style.color = "#dc2626"; 
+      } else if (total < 14) {
+          noteHeader.style.color = "#d97706"; // Orange
+          noteResume.style.color = "#d97706";
+      } else {
+          noteHeader.style.color = "#16a34a"; // Vert
+          noteResume.style.color = "#16a34a";
+      }
+  }
+
+  function computeAll() {
+    const rows = document.querySelectorAll("#tbody-questions .question-row");
+    document.getElementById("nbQuestionsDisplay").textContent = rows.length;
+    let sumB = 0, sumP = 0;
+    
+    const stats = {};
+    const comps = ["C1","C2","C3","C4","C5","C6"];
+    comps.forEach(c => {
+        stats[c] = { used: false, b:0, p:0, q:[], cnt:{NT:0,I:0,A:0,M:0} };
+    });
+    
+    rows.forEach(row => {
+        const c = row.querySelector(".comp-select").value;
+        const qNum = row.querySelector(".qnum-select").value;
+        const b = parseFloat(row.querySelector(".bareme-input").value) || 0;
+        const p = parseFloat(row.querySelector(".points-input").value) || 0;
+        const lvl = row.querySelector(".level-select").value;
+        const pInput = row.querySelector(".points-input");
+        
+        if(p > b) { pInput.style.color = "red"; pInput.style.fontWeight = "bold"; pInput.style.backgroundColor="#fee2e2"; }
+        else { pInput.style.color = ""; pInput.style.fontWeight = ""; pInput.style.backgroundColor=""; }
+
+        sumB += b; sumP += p;
+        
+        if(c && stats[c]) { 
+            stats[c].used = true;
+            stats[c].b += b; 
+            stats[c].p += p; 
+            if(qNum) stats[c].q.push(qNum);
+            if(lvl && stats[c].cnt[lvl] !== undefined) stats[c].cnt[lvl]++;
+        }
+        
+        row.className = "question-row"; if(c) row.classList.add("comp-"+c);
+    });
+
+    document.getElementById("sumBareme").textContent = formatNumber(sumB);
+    document.getElementById("sumPoints").textContent = formatNumber(sumP);
+
+    // Update Bilan
+    for (const c in stats) {
+        const row = document.getElementById("row-"+c);
+        const legendRow = document.getElementById("legend-"+c);
+        
+        if (stats[c].used) {
+            row.style.display = ""; 
+            row.classList.remove("hidden-row");
+            if(legendRow) legendRow.style.display = ""; 
+        } else {
+            row.style.display = "none";
+            row.classList.add("hidden-row");
+            if(legendRow) legendRow.style.display = "none";
+        }
+
+        document.getElementById(c+"_b").textContent = formatNumber(stats[c].b);
+        document.getElementById(c+"_q").textContent = stats[c].q.length ? stats[c].q.join(", ") : "–";
+        
+        document.getElementById(c+"_NT").textContent = stats[c].cnt.NT;
+        document.getElementById(c+"_I").textContent = stats[c].cnt.I;
+        document.getElementById(c+"_A").textContent = stats[c].cnt.A;
+        document.getElementById(c+"_M").textContent = stats[c].cnt.M;
+
+        document.getElementById(c+"_pts").value = stats[c].p > 0 ? formatNumber(stats[c].p) : (stats[c].used ? "0" : "");
+
+        let pct = (stats[c].b > 0) ? (stats[c].p / stats[c].b)*100 : 0;
+        document.getElementById(c+"_pct").textContent = pct.toFixed(0) + "%";
+        document.getElementById(c+"_bar").style.width = Math.min(100, pct) + "%";
+    }
+    
+    updateTotalFromBilan();
+    saveAutoData();
+  }
+
+  /* --- 6. BANQUE DE COMMENTAIRES --- */
+  function loadBank() { try { commentBank = JSON.parse(localStorage.getItem("grille_bank")) || ["Travail sérieux et rigoureux.", "Attention aux fautes d'orthographe.", "Manque de précision dans les réponses."]; renderBank(); } catch(e){} }
+  function saveBank() { localStorage.setItem("grille_bank", JSON.stringify(commentBank)); renderBank(); }
+  
+  function renderBank() {
+      bankContainer.innerHTML = "";
+      commentBank.forEach((t, i) => {
+          const d = document.createElement("div"); d.className = "bank-tag";
+          d.innerHTML = `<span>${t}</span><div class="bank-del" onclick="delBank(event, ${i})">×</div>`;
+          d.onclick = (e) => { 
+              if(!e.target.classList.contains("bank-del") && lastFocusedInput) { 
+                  if(lastFocusedInput.tagName === "DIV") {
+                      lastFocusedInput.innerHTML += (lastFocusedInput.innerHTML ? " " : "") + t;
+                  } else {
+                      let val = lastFocusedInput.value;
+                      lastFocusedInput.value = val ? val + " " + t : t; 
+                  }
+                  const ev = new Event('input', { bubbles: true });
+                  lastFocusedInput.dispatchEvent(ev);
+              }
+          };
+          bankContainer.appendChild(d);
+      });
+  }
+  
+  window.delBank = (e, i) => { e.stopPropagation(); commentBank.splice(i,1); saveBank(); };
+  window.resetBank = () => { if(confirm("Vider la banque ?")) { commentBank=[]; saveBank(); }};
+  
+  document.getElementById("btn-bank-add").onclick = () => { 
+      const v = bankInput.value.trim(); 
+      if(v && !commentBank.includes(v)) { commentBank.push(v); saveBank(); bankInput.value=""; }
+      else if (commentBank.includes(v)) { alert("Ce commentaire existe déjà !"); }
+  };
+
+  /* --- 8. SAUVEGARDE ET CHARGEMENT --- */
+  function saveAutoData() {
+      const data = {};
+      document.querySelectorAll(".auto-save").forEach((el, i) => {
+          data["id_"+i] = (el.tagName === "DIV") ? el.innerHTML : el.value;
+      });
+      data["rows"] = tbody.children.length;
+      localStorage.setItem("grille_data_v16", JSON.stringify(data));
+  }
+  
+  function loadAutoData() {
+      // SECURITE : Vérifier si le fichier est déjà rempli
+      const rows = document.querySelectorAll("#tbody-questions .question-row");
+      if(rows.length > 0 || (document.getElementById("nom").value !== "" && document.getElementById("nom").value !== undefined)) {
+          reattachListeners();
+          computeAll();
+          return; // ON STOPPE ICI SI FICHIER REMPLI
+      }
+
+      const d = JSON.parse(localStorage.getItem("grille_data_v16"));
+      if(!d) { initRows(1); return; }
+      restoreDataFromObject(d);
+  }
+  
+  function reattachListeners() {
+      document.querySelectorAll(".question-row").forEach(tr => {
+          const compSel = tr.querySelector(".comp-select");
+          const methodSel = tr.querySelector(".method-select");
+          const wrapper = tr.querySelector(".comp-wrapper");
+          const hidden = tr.querySelector(".level-select");
+          const btns = tr.querySelectorAll(".btn-level");
+          const ptsInput = tr.querySelector(".points-input");
+          const barInput = tr.querySelector(".bareme-input");
+          const corrigeDiv = tr.querySelector(".corrige-div");
+          
+          bindRichEdit(corrigeDiv);
+          
+          compSel.addEventListener("change", () => {
+              if(compSel.value === "C2") wrapper.classList.add("show-method");
+              else { wrapper.classList.remove("show-method"); methodSel.value = "default"; }
+              computeAll();
+          });
+          
+          ptsInput.addEventListener("input", computeAll);
+          barInput.addEventListener("input", computeAll);
+
+          btns.forEach(btn => {
+              btn.addEventListener("click", () => {
+                  btns.forEach(b => b.classList.remove("active"));
+                  btn.classList.add("active");
+                  hidden.value = btn.dataset.val;
+                  tr.querySelector(".print-level-text").textContent = btn.dataset.val;
+                  computeAll();
+                  showCriteria(compSel.value, btn.dataset.val, methodSel.value);
+              });
+              btn.addEventListener("mouseenter", () => showCriteria(compSel.value, btn.dataset.val, methodSel.value));
+              btn.addEventListener("mouseleave", () => criteriaHelper.classList.remove("visible"));
+          });
+      });
+  }
+
+  function restoreDataFromObject(d) {
+      initRows(d.rows || 1);
+      setTimeout(() => {
+          document.querySelectorAll(".auto-save").forEach((el, i) => {
+              if(d["id_"+i] !== undefined) {
+                  if(el.tagName === "DIV") { el.innerHTML = d["id_"+i]; } else { el.value = d["id_"+i]; }
+                  if(el.classList.contains("comp-select") && el.value === "C2") el.closest(".comp-wrapper").classList.add("show-method");
+                  if(el.classList.contains("level-select") && el.value) {
+                      const row = el.closest("tr");
+                      const btn = row.querySelector(`.btn-level[data-val="${el.value}"]`);
+                      if(btn) btn.classList.add("active");
+                      row.querySelector(".print-level-text").textContent = el.value; 
+                  }
+                  if(el.tagName === "TEXTAREA") { el.style.height="auto"; el.style.height=el.scrollHeight+"px"; }
+              }
+          });
+          computeAll();
+      }, 100);
+  }
+  
+  function initRows(n) { tbody.innerHTML=""; for(let i=0; i<n; i++) tbody.appendChild(createRow()); }
+  
+  window.clearColumn = (cls) => { 
+      if(confirm("Vider la colonne ?")) { 
+          document.querySelectorAll("."+cls).forEach(e => { 
+              if(e.tagName === "DIV") e.innerHTML = ""; else e.value=""; 
+              if(cls.includes("level")) { e.closest("tr").querySelectorAll(".active").forEach(b=>b.classList.remove("active")); e.closest("tr").querySelector(".print-level-text").textContent=""; }
+          }); 
+          computeAll(); 
+      }
+  };
+  
+  document.getElementById("btn-add-row").onclick = () => { tbody.appendChild(createRow()); computeAll(); };
+  document.getElementById("btn-del-row").onclick = () => { if(tbody.children.length>0) tbody.removeChild(tbody.lastChild); computeAll(); };
+  document.getElementById("btn-clear").onclick = () => { if(confirm("Tout effacer ?")) { localStorage.removeItem("grille_data_v16"); location.reload(); }};
+  
+  /* --- 9. EXPORT & PRINT --- */
+  
+  document.getElementById("btn-export-json").addEventListener("click", () => {
+      const data = {};
+      document.querySelectorAll(".auto-save").forEach((el, i) => { data["id_"+i] = (el.tagName === "DIV") ? el.innerHTML : el.value; });
+      data["rows"] = tbody.children.length;
+      const jsonStr = JSON.stringify(data, null, 2);
+      let nomFichier = (document.getElementById("nom").value || "Eleve").replace(/[^a-z0-9]/gi, '_');
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Eval_PSE_" + nomFichier + ".json";
+      a.click();
+  });
+
+  document.getElementById("btn-import-json").addEventListener("click", () => { document.getElementById("file-input").click(); });
+  
+  document.getElementById("file-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+          try {
+              const data = JSON.parse(e.target.result);
+              if(confirm("Charger ce fichier ?")) { restoreDataFromObject(data); localStorage.setItem("grille_data_v16", JSON.stringify(data)); }
+          } catch (err) { alert("Erreur de lecture"); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+  });
+
+  document.getElementById("btn-print").addEventListener("click", () => {
+      // 1. Titres
+      const textareas = document.querySelectorAll("textarea.title-main, textarea.title-section, textarea.th-input, textarea.comp-name-input, textarea#commentGlobal");
+      textareas.forEach(ta => {
+          const div = document.createElement("div");
+          div.textContent = ta.value;
+          div.style.whiteSpace = "pre-wrap"; 
+          div.className = "print-replace";
+          
+          if(ta.classList.contains("title-main")) { 
+              div.style.fontSize = "18pt"; div.style.textAlign = "center"; div.style.fontWeight = "bold"; 
+          } else if(ta.classList.contains("title-section")) { 
+              div.style.fontSize = "14pt"; div.style.fontWeight = "bold"; div.style.background = "#eee"; div.style.border="1px solid #000"; div.style.padding="5px"; 
+          } else if(ta.classList.contains("th-input")) { 
+              div.style.fontWeight = "bold"; div.style.textAlign = "center"; 
+          } else if(ta.classList.contains("comp-name-input")) { 
+              div.style.textAlign = "left"; 
+          } else { 
+              div.style.textAlign = "left"; div.style.border = "1px solid #ddd"; div.style.padding = "4px"; 
+          }
+          
+          ta.style.display = "none";
+          ta.parentNode.insertBefore(div, ta);
+      });
+
+      // 2. Rich Text Divs
+      document.querySelectorAll(".corrige-div").forEach(d => {
+           const printDiv = document.createElement("div");
+           printDiv.innerHTML = d.innerHTML; 
+           printDiv.className = "print-replace-rich"; 
+           d.style.display = "none";
+           d.parentNode.appendChild(printDiv);
+      });
+
+      // 3. Niveaux
+      document.querySelectorAll(".level-select").forEach(input => {
+          const row = input.closest("tr");
+          const span = row.querySelector(".print-level-text");
+          if(span) { span.textContent = input.value || "-"; span.style.display = "inline-block"; }
+      });
+
+      window.print();
+
+      // RESET
+      document.querySelectorAll(".print-level-text").forEach(s => s.style.display = "none");
+      document.querySelectorAll(".print-replace").forEach(div => div.remove());
+      document.querySelectorAll(".print-replace-rich").forEach(div => div.remove());
+      textareas.forEach(ta => ta.style.display = "block");
+      document.querySelectorAll(".corrige-div").forEach(d => d.style.display = "block");
+  });
+
+  function telechargerPageRemplie() {
+      const NOM_BASE = "Eval_PSE"; // Nom court
+      const prenomInput = document.getElementById("prenomEleve");
+      const classeInput = document.getElementById("classe");
+      
+      let suffixe = "";
+      if(classeInput && classeInput.value) suffixe += "_" + classeInput.value.trim();
+      if(prenomInput && prenomInput.value) suffixe += "_" + prenomInput.value.trim();
+      if(suffixe === "") suffixe = "_Eleve";
+      
+      const filename = `${NOM_BASE}${suffixe}.html`;
+
+      document.querySelectorAll("input").forEach(input => {
+          if (input.type === "checkbox" || input.type === "radio") {
+              if (input.checked) input.setAttribute("checked", "checked");
+              else input.removeAttribute("checked");
+          } else {
+              input.setAttribute("value", input.value);
+          }
+      });
+      document.querySelectorAll("textarea").forEach(area => { area.textContent = area.value; });
+      document.querySelectorAll("select").forEach(sel => {
+          const options = sel.querySelectorAll("option");
+          options.forEach(opt => {
+              if (opt.selected) opt.setAttribute("selected", "selected");
+              else opt.removeAttribute("selected");
+          });
+      });
+      
+      const docClone = document.documentElement.cloneNode(true);
+      const htmlContent = "<!DOCTYPE html>\n" + docClone.outerHTML;
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+  }
+
+  /* --- INIT --- */
+  loadBank();
+  loadAutoData();
+  
+  document.querySelectorAll(".title-main, .title-section, .th-input, .comp-name-input, #commentGlobal").forEach(bindAutoResize);
+  
+  document.querySelectorAll(".comp-points-input").forEach(input => {
+      input.addEventListener("input", updateTotalFromBilan);
+  });
+
+  document.getElementById("tbody-questions").addEventListener("input", function(e) {
+      if(e.target.classList.contains("corrige-div")) saveAutoData();
+  });
+  
+  document.getElementById("commentGlobal").addEventListener("input", saveAutoData);
+  
+  ["nom","prenomEleve","classe","dateEval","noteMaxInput"].forEach(id => document.getElementById(id).addEventListener("input", computeAll));
+</script>
+
+</body></html>
